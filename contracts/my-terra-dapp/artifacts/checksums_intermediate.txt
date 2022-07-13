@@ -1,1 +1,0 @@
-719dd49186fff86b3e3c402c42f57c905312476c1fc4557579323ee12744c97e  ./target/wasm32-unknown-unknown/release/my_terra_dapp.wasm

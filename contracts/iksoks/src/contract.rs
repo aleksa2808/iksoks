@@ -8,7 +8,7 @@ use crate::msg::{ExecuteMsg, InstantiateMsg, QueryMsg, StateResponse};
 use crate::state::{FieldState, GameState, State, STATE};
 
 // version info for migration info
-const CONTRACT_NAME: &str = "crates.io:my-terra-dapp";
+const CONTRACT_NAME: &str = "crates.io:iksoks";
 const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
 
 #[cfg_attr(not(feature = "library"), entry_point)]

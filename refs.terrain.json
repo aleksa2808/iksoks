@@ -1,9 +1,9 @@
 {
   "localterra": {
-    "my-terra-dapp": {
-      "codeId": "25",
+    "iksoks": {
+      "codeId": "26",
       "contractAddresses": {
-        "default": "terra10h45ym8emuatljfsayzxffjnmxhpk058zye6vmy3xuteaghl5epqmckm9t"
+        "default": "terra15hr434sy0j9de0lv4vr8zcaej67crnun4fz88ns37hca58c7rsgsjvp7kx"
       }
     }
   }

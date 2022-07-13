@@ -1,0 +1,1 @@
+682e2609cd3e38575f1db1c4e01f28c0d5afcf8f742f82ffb4881772abb6408f  ./target/wasm32-unknown-unknown/release/iksoks.wasm
