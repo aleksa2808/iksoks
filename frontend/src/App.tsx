@@ -33,10 +33,14 @@ const App = () => {
   const onClickPlay = async (field_num: number) => {
     if (connectedWallet) {
       setUpdating(true)
-      await execute.play(connectedWallet, field_num)
-      const state: any = await query.getState(connectedWallet)
-      setState(state)
-      setUpdating(false)
+      try {
+        await execute.play(connectedWallet, field_num)
+        const state: any = await query.getState(connectedWallet)
+        setState(state)
+      }
+      finally {
+        setUpdating(false)
+      }
     }
   }
 

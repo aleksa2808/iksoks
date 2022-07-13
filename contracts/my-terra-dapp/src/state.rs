@@ -23,6 +23,7 @@ pub enum GameState {
 pub struct State {
     pub fields: [FieldState; 9],
     pub game_state: GameState,
+    pub x_plays_next: bool,
     pub owner: Addr,
 }
 

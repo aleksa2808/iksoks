@@ -1,1 +1,1 @@
-7cb1b39d993ea663fc78b5b231ec96db82759e6ee1ddd5ed899f812b13b9a609  my_terra_dapp.wasm
+845b33a31b66bd4d134cb0b51826e550ea5c2b9001dab7d60d1e556fe24a5584  my_terra_dapp.wasm

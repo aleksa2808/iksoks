@@ -21,6 +21,7 @@ pub fn instantiate(
     let state = State {
         fields: [FieldState::Empty; 9],
         game_state: GameState::InProgress,
+        x_plays_next: true,
         owner: info.sender.clone(),
     };
     set_contract_version(deps.storage, CONTRACT_NAME, CONTRACT_VERSION)?;
@@ -54,11 +55,18 @@ pub fn try_play(deps: DepsMut, field_num: u8) -> Result<Response, ContractError>
             });
         }
 
-        // TODO: keep track of who is X and who is O and place the proper symbol
-        state.fields[field_num as usize] = match state.fields[field_num as usize] {
-            FieldState::Empty | FieldState::O => FieldState::X,
-            FieldState::X => FieldState::O,
+        if state.fields[field_num as usize] != FieldState::Empty {
+            return Err(ContractError::CustomError {
+                val: format!("Field {} is not empty.", field_num),
+            });
+        }
+
+        state.fields[field_num as usize] = if state.x_plays_next {
+            FieldState::X
+        } else {
+            FieldState::O
         };
+        state.x_plays_next = !state.x_plays_next;
 
         // check for win condition
         let root_field = state.fields[0];
@@ -133,6 +141,7 @@ pub fn try_reset(deps: DepsMut, _info: MessageInfo) -> Result<Response, Contract
     STATE.update(deps.storage, |mut state| -> Result<_, ContractError> {
         state.fields = [FieldState::Empty; 9];
         state.game_state = GameState::InProgress;
+        state.x_plays_next = true;
         Ok(state)
     })?;
     Ok(Response::new().add_attribute("method", "reset"))
