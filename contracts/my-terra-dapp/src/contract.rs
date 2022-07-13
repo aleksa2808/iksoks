@@ -4,8 +4,8 @@ use cosmwasm_std::{to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Response,
 use cw2::set_contract_version;
 
 use crate::error::ContractError;
-use crate::msg::{ExecuteMsg, FieldsResponse, InstantiateMsg, QueryMsg};
-use crate::state::{FieldState, State, STATE};
+use crate::msg::{ExecuteMsg, InstantiateMsg, QueryMsg, StateResponse};
+use crate::state::{FieldState, GameState, State, STATE};
 
 // version info for migration info
 const CONTRACT_NAME: &str = "crates.io:my-terra-dapp";
@@ -20,6 +20,7 @@ pub fn instantiate(
 ) -> Result<Response, ContractError> {
     let state = State {
         fields: [FieldState::Empty; 9],
+        game_state: GameState::InProgress,
         owner: info.sender.clone(),
     };
     set_contract_version(deps.storage, CONTRACT_NAME, CONTRACT_VERSION)?;
@@ -28,7 +29,8 @@ pub fn instantiate(
     Ok(Response::new()
         .add_attribute("method", "instantiate")
         .add_attribute("owner", info.sender)
-        .add_attribute("fields", "empty*9"))
+        .add_attribute("fields", "empty*9")
+        .add_attribute("game_state", "inprogress"))
 }
 
 #[cfg_attr(not(feature = "library"), entry_point)]
@@ -46,23 +48,91 @@ pub fn execute(
 
 pub fn try_play(deps: DepsMut, field_num: u8) -> Result<Response, ContractError> {
     STATE.update(deps.storage, |mut state| -> Result<_, ContractError> {
+        if state.game_state != GameState::InProgress {
+            return Err(ContractError::CustomError {
+                val: String::from("The current match has finished."),
+            });
+        }
+
         // TODO: keep track of who is X and who is O and place the proper symbol
         state.fields[field_num as usize] = match state.fields[field_num as usize] {
             FieldState::Empty | FieldState::O => FieldState::X,
             FieldState::X => FieldState::O,
         };
+
+        // check for win condition
+        let root_field = state.fields[0];
+        if root_field != FieldState::Empty
+            && ((root_field == state.fields[1] && root_field == state.fields[2])
+                || (root_field == state.fields[4] && root_field == state.fields[8])
+                || (root_field == state.fields[3] && root_field == state.fields[6]))
+        {
+            state.game_state = match root_field {
+                FieldState::Empty => unreachable!(),
+                FieldState::X => GameState::XWon,
+                FieldState::O => GameState::OWon,
+            };
+        }
+        let root_field = state.fields[1];
+        if root_field != FieldState::Empty
+            && root_field == state.fields[4]
+            && root_field == state.fields[7]
+        {
+            state.game_state = match root_field {
+                FieldState::Empty => unreachable!(),
+                FieldState::X => GameState::XWon,
+                FieldState::O => GameState::OWon,
+            };
+        }
+        let root_field = state.fields[2];
+        if root_field != FieldState::Empty
+            && ((root_field == state.fields[4] && root_field == state.fields[6])
+                || (root_field == state.fields[5] && root_field == state.fields[8]))
+        {
+            state.game_state = match root_field {
+                FieldState::Empty => unreachable!(),
+                FieldState::X => GameState::XWon,
+                FieldState::O => GameState::OWon,
+            };
+        }
+        let root_field = state.fields[3];
+        if root_field != FieldState::Empty
+            && root_field == state.fields[4]
+            && root_field == state.fields[5]
+        {
+            state.game_state = match root_field {
+                FieldState::Empty => unreachable!(),
+                FieldState::X => GameState::XWon,
+                FieldState::O => GameState::OWon,
+            };
+        }
+        let root_field = state.fields[6];
+        if root_field != FieldState::Empty
+            && root_field == state.fields[7]
+            && root_field == state.fields[8]
+        {
+            state.game_state = match root_field {
+                FieldState::Empty => unreachable!(),
+                FieldState::X => GameState::XWon,
+                FieldState::O => GameState::OWon,
+            };
+        }
+
+        // check for draw condition
+        if state.fields.iter().all(|f| *f != FieldState::Empty) {
+            state.game_state = GameState::Draw;
+        }
+
         Ok(state)
     })?;
 
     Ok(Response::new().add_attribute("method", "try_play"))
 }
 
-pub fn try_reset(deps: DepsMut, info: MessageInfo) -> Result<Response, ContractError> {
+pub fn try_reset(deps: DepsMut, _info: MessageInfo) -> Result<Response, ContractError> {
     STATE.update(deps.storage, |mut state| -> Result<_, ContractError> {
-        if info.sender != state.owner {
-            return Err(ContractError::Unauthorized {});
-        }
         state.fields = [FieldState::Empty; 9];
+        state.game_state = GameState::InProgress;
         Ok(state)
     })?;
     Ok(Response::new().add_attribute("method", "reset"))
@@ -71,14 +141,15 @@ pub fn try_reset(deps: DepsMut, info: MessageInfo) -> Result<Response, ContractE
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
     match msg {
-        QueryMsg::GetFields {} => to_binary(&query_fields(deps)?),
+        QueryMsg::GetState {} => to_binary(&query_state(deps)?),
     }
 }
 
-fn query_fields(deps: Deps) -> StdResult<FieldsResponse> {
+fn query_state(deps: Deps) -> StdResult<StateResponse> {
     let state = STATE.load(deps.storage)?;
-    Ok(FieldsResponse {
+    Ok(StateResponse {
         fields: state.fields,
+        game_state: state.game_state,
     })
 }
 

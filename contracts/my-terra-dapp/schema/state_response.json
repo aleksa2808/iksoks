@@ -1,9 +1,10 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "FieldsResponse",
+  "title": "StateResponse",
   "type": "object",
   "required": [
-    "fields"
+    "fields",
+    "game_state"
   ],
   "properties": {
     "fields": {
@@ -13,6 +14,9 @@
       },
       "maxItems": 9,
       "minItems": 9
+    },
+    "game_state": {
+      "$ref": "#/definitions/GameState"
     }
   },
   "definitions": {
@@ -22,6 +26,15 @@
         "Empty",
         "X",
         "O"
+      ]
+    },
+    "GameState": {
+      "type": "string",
+      "enum": [
+        "InProgress",
+        "XWon",
+        "OWon",
+        "Draw"
       ]
     }
   }

@@ -11,9 +11,18 @@ pub enum FieldState {
     O,
 }
 
+#[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, JsonSchema)]
+pub enum GameState {
+    InProgress,
+    XWon,
+    OWon,
+    Draw,
+}
+
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct State {
     pub fields: [FieldState; 9],
+    pub game_state: GameState,
     pub owner: Addr,
 }
 

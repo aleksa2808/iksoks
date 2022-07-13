@@ -5,7 +5,7 @@ use cosmwasm_std::{
     to_binary, Addr, CosmosMsg, CustomQuery, Querier, QuerierWrapper, StdResult, WasmMsg, WasmQuery,
 };
 
-use crate::msg::{ExecuteMsg, FieldsResponse, QueryMsg};
+use crate::msg::{ExecuteMsg, QueryMsg, StateResponse};
 
 /// CwTemplateContract is a wrapper around Addr that provides a lot of helpers
 /// for working with this.
@@ -27,20 +27,19 @@ impl CwTemplateContract {
         .into())
     }
 
-    /// Get Fields
-    pub fn fields<Q, T, CQ>(&self, querier: &Q) -> StdResult<FieldsResponse>
+    pub fn state<Q, T, CQ>(&self, querier: &Q) -> StdResult<StateResponse>
     where
         Q: Querier,
         T: Into<String>,
         CQ: CustomQuery,
     {
-        let msg = QueryMsg::GetFields {};
+        let msg = QueryMsg::GetState {};
         let query = WasmQuery::Smart {
             contract_addr: self.addr().into(),
             msg: to_binary(&msg)?,
         }
         .into();
-        let res: FieldsResponse = QuerierWrapper::<CQ>::new(querier).query(&query)?;
+        let res: StateResponse = QuerierWrapper::<CQ>::new(querier).query(&query)?;
         Ok(res)
     }
 }

@@ -11,7 +11,7 @@ import * as query from './contract/query'
 import { ConnectWallet } from './components/ConnectWallet'
 
 const App = () => {
-  const [fields, setFields] = useState(null)
+  const [state, setState] = useState<{ fields: [string], game_state: string } | null>(null)
   const [updating, setUpdating] = useState(true)
 
   const { status } = useWallet()
@@ -21,8 +21,9 @@ const App = () => {
   useEffect(() => {
     const prefetch = async () => {
       if (connectedWallet) {
-        const { fields }: any = await query.getFields(connectedWallet)
-        setFields(fields)
+        const state: any = await query.getState(connectedWallet)
+        console.log(state)
+        setState(state)
       }
       setUpdating(false)
     }
@@ -33,8 +34,8 @@ const App = () => {
     if (connectedWallet) {
       setUpdating(true)
       await execute.play(connectedWallet, field_num)
-      const { fields }: any = await query.getFields(connectedWallet)
-      setFields(fields)
+      const state: any = await query.getState(connectedWallet)
+      setState(state)
       setUpdating(false)
     }
   }
@@ -43,8 +44,9 @@ const App = () => {
     if (connectedWallet) {
       setUpdating(true)
       await execute.reset(connectedWallet)
-      const { fields }: any = await query.getFields(connectedWallet)
-      setFields(fields)
+      const state: any = await query.getState(connectedWallet)
+      console.log(state)
+      setState(state)
       setUpdating(false)
     }
   }
@@ -54,16 +56,17 @@ const App = () => {
       <header className="App-header">
         <div style={{ display: 'inline' }}>
           {
-            fields ? (<table>{[0, 1, 2].map((row) =>
-            (<tr>{[0, 1, 2].map((column) => {
+            state ? (<table><tbody>{[0, 1, 2].map((row) =>
+            (<tr key={row}>{[0, 1, 2].map((column) => {
               const i = 3 * row + column;
               return (<td key={i} onClick={async () => { await onClickPlay(i) }}>
-                {fields[i] === 'Empty' ? '/' : fields[i]}
+                {state.fields[i] === 'Empty' ? '/' : state.fields[i]}
               </td>)
             })}</tr>)
-            )}</table>) : ''
+            )}</tbody></table>) : ''
           }
         </div>
+        {state ? state.game_state : ''}
         {updating ? '(updating . . .)' : ''}
         {status === WalletStatus.WALLET_CONNECTED && (
           <div style={{ display: 'inline' }}>

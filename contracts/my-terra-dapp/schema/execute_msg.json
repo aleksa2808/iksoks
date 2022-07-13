@@ -16,7 +16,7 @@
           "properties": {
             "field_num": {
               "type": "integer",
-              "format": "uint",
+              "format": "uint8",
               "minimum": 0.0
             }
           }
