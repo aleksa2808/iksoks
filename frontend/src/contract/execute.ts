@@ -45,7 +45,7 @@ const _exec = (msg: any) =>
 
 // ==== execute contract ====
 
-export const increment = _exec({ increment: {} });
+export const play = async (wallet: ConnectedWallet, field_num: number) =>
+  _exec({ play: { field_num } })(wallet);
 
-export const reset = async (wallet: ConnectedWallet, count: number) =>
-  _exec({ reset: { count } })(wallet);
+export const reset = _exec({ reset: {} });

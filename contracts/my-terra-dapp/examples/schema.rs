@@ -3,8 +3,8 @@ use std::fs::create_dir_all;
 
 use cosmwasm_schema::{export_schema, remove_schemas, schema_for};
 
-use my-terra-dapp::msg::{CountResponse, ExecuteMsg, InstantiateMsg, QueryMsg};
-use my-terra-dapp::state::State;
+use my_terra_dapp::msg::{ExecuteMsg, FieldsResponse, InstantiateMsg, QueryMsg};
+use my_terra_dapp::state::State;
 
 fn main() {
     let mut out_dir = current_dir().unwrap();
@@ -16,5 +16,5 @@ fn main() {
     export_schema(&schema_for!(ExecuteMsg), &out_dir);
     export_schema(&schema_for!(QueryMsg), &out_dir);
     export_schema(&schema_for!(State), &out_dir);
-    export_schema(&schema_for!(CountResponse), &out_dir);
+    export_schema(&schema_for!(FieldsResponse), &out_dir);
 }

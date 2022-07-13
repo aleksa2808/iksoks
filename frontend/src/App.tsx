@@ -11,9 +11,8 @@ import * as query from './contract/query'
 import { ConnectWallet } from './components/ConnectWallet'
 
 const App = () => {
-  const [count, setCount] = useState(null)
+  const [fields, setFields] = useState(null)
   const [updating, setUpdating] = useState(true)
-  const [resetValue, setResetValue] = useState(0)
 
   const { status } = useWallet()
 
@@ -22,20 +21,20 @@ const App = () => {
   useEffect(() => {
     const prefetch = async () => {
       if (connectedWallet) {
-        const { count } : any = await query.getCount(connectedWallet)
-        setCount(count) 
+        const { fields }: any = await query.getFields(connectedWallet)
+        setFields(fields)
       }
       setUpdating(false)
     }
     prefetch()
   }, [connectedWallet])
 
-  const onClickIncrement = async () => {
+  const onClickPlay = async (field_num: number) => {
     if (connectedWallet) {
       setUpdating(true)
-      await execute.increment(connectedWallet)
-      const { count } : any = await query.getCount(connectedWallet)
-      setCount(count)
+      await execute.play(connectedWallet, field_num)
+      const { fields }: any = await query.getFields(connectedWallet)
+      setFields(fields)
       setUpdating(false)
     }
   }
@@ -43,10 +42,9 @@ const App = () => {
   const onClickReset = async () => {
     if (connectedWallet) {
       setUpdating(true)
-      console.log(resetValue)
-      await execute.reset(connectedWallet, resetValue)
-      const { count } : any = await query.getCount(connectedWallet)
-      setCount(count)
+      await execute.reset(connectedWallet)
+      const { fields }: any = await query.getFields(connectedWallet)
+      setFields(fields)
       setUpdating(false)
     }
   }
@@ -55,19 +53,20 @@ const App = () => {
     <div className="App">
       <header className="App-header">
         <div style={{ display: 'inline' }}>
-          COUNT: {count} {updating ? '(updating . . .)' : ''}
-          <button onClick={onClickIncrement} type="button">
-            {' '}
-            +{' '}
-          </button>
+          {
+            fields ? (<table>{[0, 1, 2].map((row) =>
+            (<tr>{[0, 1, 2].map((column) => {
+              const i = 3 * row + column;
+              return (<td key={i} onClick={async () => { await onClickPlay(i) }}>
+                {fields[i] === 'Empty' ? '/' : fields[i]}
+              </td>)
+            })}</tr>)
+            )}</table>) : ''
+          }
         </div>
+        {updating ? '(updating . . .)' : ''}
         {status === WalletStatus.WALLET_CONNECTED && (
           <div style={{ display: 'inline' }}>
-            <input
-              type="number"
-              onChange={(e) => setResetValue(+e.target.value)}
-              value={resetValue}
-            />
             <button onClick={onClickReset} type="button">
               {' '}
               reset{' '}
